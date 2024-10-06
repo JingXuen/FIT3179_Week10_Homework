@@ -1,0 +1,161 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "width": 800,
+    "height": 600,
+    "title": "Pollutants Emission per Population in 2022",
+    "data": {
+      "url": "https://raw.githubusercontent.com/JingXuen/FIT3179_Data-Visualization-2/refs/heads/main/data/pollutants_1922_2022_bubble_chart.csv"
+    },
+    "params": [
+      {
+        "name": "continent_selection",
+        "bind": {
+          "input": "select",
+          "options": [
+            null,
+            "North America",
+            "South America",
+            "Europe",
+            "Africa",
+            "Asia",
+            "Oceania"
+          ],
+          "labels": [
+            "Show All",
+            "North America",
+            "South America",
+            "Europe",
+            "Africa",
+            "Asia",
+            "Oceania"
+          ],
+          "name": "Continent Selection: "
+        }
+      },
+      {
+        "name": "pollutants_selection",
+        "bind": {
+          "input": "select",
+          "options": [
+            "Nitrogen oxide (NOx)",
+            "Sulphur dioxide (SO₂) emissions",
+            "Carbon monoxide (CO) emissions",
+            "Black carbon (BC) emissions",
+            "Ammonia (NH₃) emissions",
+            "Non-methane volatile organic compounds (NMVOC) emissions"
+          ],
+          "labels": [
+            "Nitrogen oxide (NOx)",
+            "Sulphur dioxide (SO₂)",
+            "Carbon monoxide (CO)",
+            "Black carbon (BC)",
+            "Ammonia (NH₃)",
+            "Non-methane volatile organic compounds (NMVOC)"
+          ],
+          "name": "Pollutant Selection: "
+        },
+        "value": "Nitrogen oxide (NOx)"
+      }
+    ],
+    "transform": [
+      {
+        "filter": "datum['Population (historical)'] > 0"
+      },
+      {
+        "filter": "datum[pollutants_selection] > 0"
+      },
+      {
+        "filter": "datum.Year == 2022"
+      },
+      {
+        "filter": "continent_selection == null || datum.Continent == continent_selection"
+      },
+      {
+        "calculate": "datum[pollutants_selection] / datum['Population (historical)'] * 1000",
+        "as": "Pollutant Emission per population (kg)"
+      },
+      {
+        "calculate": "datum['Population (historical)'] / 10000",
+        "as": "Population (in 10k)"
+      }
+    ],
+    "encoding": {
+      "x": {
+        "field": "Pollutant Emission per population (kg)",
+        "type": "quantitative",
+        "axis": {
+            "grid": false
+        },
+        "scale": {"type": "log", "domain": [0.01, 500]}
+      },
+      "y": {
+        "field": "Population (in 10k)",
+        "type": "quantitative",
+        "axis": {"grid": false},
+        "scale": {"type": "log", "domain": [0.1, 200000]}
+      }
+    },
+    "layer": [
+      {
+        "mark": "circle",
+        "encoding": {
+          "color": {
+            "field": "Continent",
+            "type": "nominal",
+            "scale": {
+              "domain": [
+                "North America",
+                "South America",
+                "Europe",
+                "Africa",
+                "Asia",
+                "Oceania"
+              ],
+              "range": [
+                "#e41a1c",
+                "#984ea3",
+                "#ff7f00",
+                "#a6cee3",
+                "#377eb8",
+                "#a65628"
+              ]
+            }
+          },
+          "opacity": {"value": 0.6},
+          "tooltip": [
+            {"field": "Entity", "type": "nominal"},
+            {"field": "Continent", "type": "nominal"},
+            {"field": "Pollutant Emission per population (kg)", "type": "quantitative", "format": ","},
+            {"field": "Population (in 10k)", "type": "quantitative", "format": ","}
+          ]
+        }
+      },
+      {
+        "mark": {
+          "type": "text",
+          "align": "right",
+          "baseline": "middle",
+          "dx": -12,
+          "fontSize": 11.5,
+          "fontStyle": "italic"
+        },
+        "encoding": {
+          "text": {"field": "Entity", "type": "nominal"},
+          "color": {"value": "black"},
+          "opacity": {
+            "condition": {
+              "test": "datum['Entity'] == 'China' || datum['Entity'] == 'Singapore' || datum['Entity'] == 'Australia' || datum['Entity'] == 'New Zealand' || datum['Entity'] == 'Italy' || datum['Entity'] == 'Yemen' ||  datum['Entity'] == 'United States'",
+              "value": 1
+            },
+            "value": 0
+          },
+          "tooltip": [
+            {"field": "Entity", "type": "nominal"},
+            {"field": "Continent", "type": "nominal"},
+            {"field": "Pollutant Emission per population (kg)", "type": "quantitative", "format": ","},
+            {"field": "Population (in 10k)", "type": "quantitative", "format": ","}
+          ]
+        }
+      }
+    ]
+  }
